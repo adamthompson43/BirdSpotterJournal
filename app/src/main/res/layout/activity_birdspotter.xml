@@ -40,14 +40,20 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <EditText
-                    android:id="@+id/birdSpecies"
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
-                    android:hint="Species"
-                    android:inputType="text"
-                    android:padding="8dp" />
+                    android:hint="Species">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/birdSpecies"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:padding="8dp"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
 
                 <EditText
                     android:id="@+id/birdLocation"

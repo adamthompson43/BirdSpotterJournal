@@ -12,6 +12,7 @@ import java.util.Calendar
 import ie.setu.birdspotterjournal.main.MainApp
 import android.content.Intent
 import java.util.UUID
+import android.widget.ArrayAdapter
 
 /**
  * BirdSpotterActivity allows users to add and delete birds
@@ -34,6 +35,18 @@ class BirdSpotterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityBirdspotterBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        val birdSpeciesList = loadBirdSpeciesFromAssets().sorted()
+
+        val speciesAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_dropdown_item_1line,
+            birdSpeciesList
+        )
+
+        binding.birdSpecies.setAdapter(speciesAdapter)
+
+        binding.birdSpecies.threshold = 1
 
         app = application as MainApp
 
@@ -95,4 +108,12 @@ class BirdSpotterActivity : AppCompatActivity() {
             finish() // closes the current activity and returns to the previous one
         }
     }
+
+    private fun loadBirdSpeciesFromAssets(): List<String> {
+        return assets.open("birds.txt")
+            .bufferedReader()
+            .readLines()
+            .filter { it.isNotBlank() }
+    }
+
 }
