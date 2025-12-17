@@ -13,6 +13,10 @@ import ie.setu.birdspotterjournal.main.MainApp
 import android.content.Intent
 import java.util.UUID
 import android.widget.ArrayAdapter
+import android.net.Uri
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
+import java.io.File
 
 /**
  * BirdSpotterActivity allows users to add and delete birds
@@ -29,6 +33,26 @@ class BirdSpotterActivity : AppCompatActivity() {
 
     lateinit var app: MainApp
 
+    private var photoUri: Uri? = null
+
+    private val takePictureLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            if (success && photoUri != null) {
+                bird.imageUri = photoUri.toString()
+                binding.birdImage.setImageURI(photoUri)
+            }
+        }
+
+    private fun createImageUri(): Uri {
+        val imagesDir = File(cacheDir, "images").apply { mkdirs() }
+        val imageFile = File.createTempFile("bird_", ".jpg", imagesDir)
+
+        return FileProvider.getUriForFile(
+            this,
+            "${packageName}.fileprovider",
+            imageFile
+        )
+    }
 
     // sets up layout, listeners, handles add and edit modes
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +81,11 @@ class BirdSpotterActivity : AppCompatActivity() {
             binding.birdLocation.setText(bird.location)
             binding.birdNotes.setText(bird.notes)
             binding.birdDate.setText(bird.date)
+
+            if (bird.imageUri.isNotEmpty()) {
+                binding.birdImage.setImageURI(Uri.parse(bird.imageUri))
+            }
+
             binding.btnAdd.text = "Save"
             title = "Edit Bird"
         } else {
@@ -106,6 +135,11 @@ class BirdSpotterActivity : AppCompatActivity() {
         // handles cancel button
         binding.btnCancel.setOnClickListener {
             finish() // closes the current activity and returns to the previous one
+        }
+
+        binding.btnTakePhoto.setOnClickListener {
+            photoUri = createImageUri()
+            takePictureLauncher.launch(photoUri)
         }
     }
 

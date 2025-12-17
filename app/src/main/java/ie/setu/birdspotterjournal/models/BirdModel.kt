@@ -11,5 +11,6 @@ data class BirdModel(
     var species: String = "", // bird species name
     var location: String = "", // bird location name
     var notes: String = "", // additional notes on spotting
-    var date: String = "" // date of spotting formatted to dd/mm/yyyy
+    var date: String = "", // date of spotting formatted to dd/mm/yyyy
+    var imageUri: String = "" // image of bird
 ) : Parcelable
