@@ -3,4 +3,6 @@
     <string name="button_addBirdSighting">Add Bird Sighting</string>
     <string name="hint_birdSightingTitle">Bird Sighting Title</string>
     <string name="menu_addBird">Add</string>
+    <string name="title_activity_map">MapActivity</string>
+    <string name="title_activity_bird_map">BirdMapActivity</string>
 </resources>

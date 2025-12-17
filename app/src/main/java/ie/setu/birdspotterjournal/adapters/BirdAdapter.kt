@@ -37,7 +37,7 @@ class BirdAdapter constructor(
             onBirdDelete: (BirdModel) -> Unit
         ) {
             binding.birdSpecies.text = bird.species
-            binding.birdLocation.text = "Location: ${bird.location}"
+            binding.birdLocation.text = "Location: ${bird.placeName}"
             binding.birdDate.text = "Date: ${bird.date}"
             binding.birdNotes.text = "Notes: ${bird.notes}"
 

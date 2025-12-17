@@ -9,8 +9,9 @@ import kotlinx.parcelize.Parcelize
 data class BirdModel(
     var id: String = "", // bird uuid string
     var species: String = "", // bird species name
-    var location: String = "", // bird location name
+    var placeName: String = "", // bird location name
     var notes: String = "", // additional notes on spotting
     var date: String = "", // date of spotting formatted to dd/mm/yyyy
-    var imageUri: String = "" // image of bird
+    var imageUri: String = "", // image of bird
+    var geoLocation: Location = Location() // geolocation of sighting
 ) : Parcelable

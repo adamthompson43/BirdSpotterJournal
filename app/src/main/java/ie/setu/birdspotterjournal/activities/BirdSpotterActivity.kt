@@ -17,6 +17,8 @@ import android.net.Uri
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import java.io.File
+import androidx.activity.result.ActivityResultLauncher
+import ie.setu.birdspotterjournal.models.Location
 
 /**
  * BirdSpotterActivity allows users to add and delete birds
@@ -31,7 +33,20 @@ class BirdSpotterActivity : AppCompatActivity() {
     // bird model instance for both new and edited birds
     var bird = BirdModel()
 
+    private lateinit var mapIntentLauncher: ActivityResultLauncher<Intent>
+
     lateinit var app: MainApp
+
+    private fun registerMapCallback() {
+        mapIntentLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == RESULT_OK && result.data != null) {
+                    val loc = result.data!!.getParcelableExtra<Location>("location")!!
+                    bird.geoLocation = loc
+                    Snackbar.make(binding.root, "Map location saved", Snackbar.LENGTH_SHORT).show()
+                }
+            }
+    }
 
     private var photoUri: Uri? = null
 
@@ -60,6 +75,8 @@ class BirdSpotterActivity : AppCompatActivity() {
         binding = ActivityBirdspotterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        registerMapCallback()
+
         val birdSpeciesList = loadBirdSpeciesFromAssets().sorted()
 
         val speciesAdapter = ArrayAdapter(
@@ -78,7 +95,7 @@ class BirdSpotterActivity : AppCompatActivity() {
         if (intent.hasExtra("bird_edit")) {
             bird = intent.getParcelableExtra("bird_edit")!!
             binding.birdSpecies.setText(bird.species)
-            binding.birdLocation.setText(bird.location)
+            binding.birdLocation.setText(bird.placeName)
             binding.birdNotes.setText(bird.notes)
             binding.birdDate.setText(bird.date)
 
@@ -111,7 +128,7 @@ class BirdSpotterActivity : AppCompatActivity() {
         // handles add/save button click. validates species isnt empty, assigns uuid if new, returns birdmodel as an intent result
         binding.btnAdd.setOnClickListener {
             bird.species = binding.birdSpecies.text.toString()
-            bird.location = binding.birdLocation.text.toString()
+            bird.placeName = binding.birdLocation.text.toString()
             bird.notes = binding.birdNotes.text.toString()
             bird.date = binding.birdDate.text.toString()
 
@@ -140,6 +157,12 @@ class BirdSpotterActivity : AppCompatActivity() {
         binding.btnTakePhoto.setOnClickListener {
             photoUri = createImageUri()
             takePictureLauncher.launch(photoUri)
+        }
+
+        binding.btnPickLocation.setOnClickListener {
+            val launcherIntent = Intent(this, MapActivity::class.java)
+            launcherIntent.putExtra("location", bird.geoLocation)
+            mapIntentLauncher.launch(launcherIntent)
         }
     }
 
