@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import ie.setu.birdspotterjournal.databinding.CardBirdBinding
 import ie.setu.birdspotterjournal.models.BirdModel
+import android.net.Uri
+import ie.setu.birdspotterjournal.R
 
 class BirdAdapter constructor(
     private var birds: List<BirdModel>,
@@ -25,7 +27,6 @@ class BirdAdapter constructor(
         holder.bind(bird, onBirdClick, onBirdDelete)
     }
 
-
     override fun getItemCount(): Int = birds.size
 
     class MainHolder(private val binding: CardBirdBinding)
@@ -41,10 +42,16 @@ class BirdAdapter constructor(
             binding.birdDate.text = "Date: ${bird.date}"
             binding.birdNotes.text = "Notes: ${bird.notes}"
 
-            // Edit when clicking the whole card
+            if (bird.imageUri.isNotBlank()) {
+                binding.birdImage.setImageURI(Uri.parse(bird.imageUri))
+            } else {
+                binding.birdImage.setImageResource(R.drawable.baseline_image_24)
+            }
+
+            // edit when clicking the whole card
             binding.root.setOnClickListener { onBirdClick(bird) }
 
-            // Delete when pressing the delete icon
+            // delete when pressing the delete icon
             binding.deleteButton.setOnClickListener { onBirdDelete(bird) }
         }
     }
