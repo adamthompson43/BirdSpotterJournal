@@ -20,6 +20,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.Marker
+import ie.setu.birdspotterjournal.models.BirdModel
+
 
 /**
  * BirdMapActivity displays a map of stored birds in the app
@@ -27,7 +30,9 @@ import com.google.android.gms.location.LocationServices
  *  - View all birds in a map
  */
 
-class BirdMapActivity : AppCompatActivity(), OnMapReadyCallback {
+class BirdMapActivity : AppCompatActivity(),
+    OnMapReadyCallback,
+    GoogleMap.OnMarkerClickListener {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val locationPermissionCode = 1001
@@ -59,7 +64,10 @@ class BirdMapActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
+        mMap.setOnMarkerClickListener(this)
+
         enableMyLocation()
+
 
         val birds = app.birdsStore.findAll()
 
@@ -68,15 +76,17 @@ class BirdMapActivity : AppCompatActivity(), OnMapReadyCallback {
                 val loc = bird.geoLocation
                 val position = LatLng(loc.lat, loc.lng)
 
-                mMap.addMarker(
+                val marker = mMap.addMarker(
                     MarkerOptions()
                         .position(position)
                         .title(bird.species)
                         .snippet(bird.placeName)
                 )
+
+                marker?.tag = bird
             }
 
-            // Zoom to first bird
+            // zoom to first bird
             val first = birds.first().geoLocation
             mMap.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(
@@ -91,6 +101,25 @@ class BirdMapActivity : AppCompatActivity(), OnMapReadyCallback {
         menuInflater.inflate(R.menu.map_menu, menu)
         return true
     }
+
+    override fun onMarkerClick(marker: Marker): Boolean {
+        val bird = marker.tag as? BirdModel ?: return false
+
+        binding.currentTitle.text = bird.species
+        binding.currentDescription.text = bird.notes.ifBlank {
+            bird.placeName
+        }
+
+        // Load image if present
+        if (bird.imageUri.isNotEmpty()) {
+            binding.currentImage.setImageURI(android.net.Uri.parse(bird.imageUri))
+        } else {
+            binding.currentImage.setImageResource(R.drawable.baseline_image_24)
+        }
+
+        return false // keep default map behavior
+    }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
@@ -132,12 +161,14 @@ class BirdMapActivity : AppCompatActivity(), OnMapReadyCallback {
             val loc = bird.geoLocation
             val position = LatLng(loc.lat, loc.lng)
 
-            mMap.addMarker(
+            val marker = mMap.addMarker(
                 MarkerOptions()
                     .position(position)
                     .title(bird.species)
                     .snippet(bird.placeName)
             )
+
+            marker?.tag = bird
         }
     }
 
